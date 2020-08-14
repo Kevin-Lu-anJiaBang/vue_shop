@@ -1,5 +1,7 @@
 <template>
-  <div class="">home</div>
+  <div class="">
+    <el-button type="info" @click="logout">退出</el-button>
+  </div>
 </template>
 
 <script>
@@ -12,7 +14,12 @@ export default {
   components: {},
   computed: {},
   watch: {},
-  methods: {},
+  methods: {
+    logout() {
+      window.sessionStorage.clear();
+      this.$router.push('/login');
+    },
+  },
   created () {},
   mounted () {},
 }

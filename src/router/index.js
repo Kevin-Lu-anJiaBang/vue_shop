@@ -22,6 +22,7 @@ router.beforeEach((to, from, next) =>{
   //没有 token，强制跳转到登录页
   if (!tokenStr) {
     // this.$message.error('请先登录')
+    window.alert("请先登录！")
     return next('/login')
   }
   next()
