@@ -63,8 +63,15 @@ export default {
   watch: {},
   methods: {
     logout() {
-      window.sessionStorage.clear();
-      this.$router.push("/login");
+      this.$confirm('是否确定退出登录？','提示',{
+        confirmButtonText:'确定',cancelButtonText: '取消',type: 'warning'
+      }).then(() => {
+        this.$message.success('退出成功！')
+        window.sessionStorage.clear()
+        this.$router.push("/login")
+      }).catch(()=>{
+          this.$message.info('已取消退出！')
+      })
     },
     async getMenuList() {
       const {data: res} = await this.$http.get('menus');

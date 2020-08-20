@@ -21,7 +21,7 @@
       </el-row>
       <!-- 用户列表区域 -->
       <el-table :data="userlist" border stripe>
-        <el-table-column type="index" label="索引"></el-table-column>
+        <el-table-column type="index" label="#"></el-table-column>
         <el-table-column label="姓名" prop="username"></el-table-column>
         <el-table-column label="邮箱" prop="email"></el-table-column>
         <el-table-column label="电话" prop="mobile"></el-table-column>
@@ -60,7 +60,7 @@
       title="添加用户"
       :visible.sync="addDialogVisible"
       width="50%"
-      @close="addDialogClose">
+      @close="DialogClose('addFormRef')">
       <!-- 内容主体区 -->
       <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="70px">
         <el-form-item label="用户名" prop="username">
@@ -87,7 +87,7 @@
       title="修改用户"
       :visible.sync="editDialogVisible"
       width="50%"
-      @close="editDialogClose">
+      @close="DialogClose('editFormRef')">
       <!-- 内容主体区 -->
       <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="70px">
         <el-form-item label="用户名">
@@ -211,7 +211,6 @@ export default {
     },
     //监听 switch 开关状态的改变
     async userStateChanged(userInfo) {
-      // console.log(userInfo);
       const {data: res} = await this.$http.put(`users/${userInfo.id}/state/${userInfo.mg_state}`);
       if(res.meta.status != 200) {
         userInfo.mg_state = !userInfo.mg_state;
@@ -219,12 +218,9 @@ export default {
       }
       this.$message.success('更新成功！')
     },
-    // 监听添加用户对话框的关闭事件
-    addDialogClose() {
-      this.$refs.addFormRef.resetFields()
-    },
-    editDialogClose() {
-      this.$refs.editFormRef.resetFields()
+    // 监听对话框的关闭事件
+    DialogClose(refName) {
+      this.$refs[refName].resetFields()
     },
     // 添加用户按钮
     addUser() {
