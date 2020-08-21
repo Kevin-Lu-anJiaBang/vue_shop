@@ -97,13 +97,14 @@
     <el-dialog
       title="分配权限"
       :visible.sync="setRightDialogVisible"
-      width="50%">
+      width="50%"
+      @close="setRightDialogClosed">
       <!-- 内容主体区 -->
-      <el-tree :data="rightslist" :props="treeProps" show-checkbox node-key="id" default-expand-all :default-checked-keys="defKeys"></el-tree>
+      <el-tree :data="rightslist" :props="treeProps" show-checkbox node-key="id" default-expand-all :default-checked-keys="defKeys" ref="treeRef"></el-tree>
       <!-- 底部按钮区 -->
       <span slot="footer" class="dialog-footer">
         <el-button @click="setRightDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="setRightDialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="allotRights">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -154,7 +155,8 @@ export default {
         children: 'children'
       },
       // 默认选中
-      defKeys: []
+      defKeys: [],
+      roleId: ''
     };
   },
   components: {},
@@ -230,17 +232,17 @@ export default {
       role.children = res.data
     },
     async showSetRightDialog(role) {
+      this.roleId = role.id
       const {data: res} = await this.$http.get('rights/tree')
       if(res.meta.status != 200) return this.$message.error('获取数据失败')
       this.rightslist = res.data
-      // console.log(this.rightslist)
       // 递归获取三级节点id
       this.getLeafKeys(role, this.defKeys)
       this.setRightDialogVisible = true
     },
     // 通过递归形式，获取角色下三级权限id
     getLeafKeys(node, arr) {
-      console.log(node)
+      // console.log(node)
       // 如果node不包含children属性，则是三级节点
       if(!node.children){
         return arr.push(node.id)
@@ -249,6 +251,24 @@ export default {
       node.children.forEach(item => {
         this.getLeafKeys(item, arr)
       })
+    },
+    // 关闭对话框清空树形结构已选择的数组
+    setRightDialogClosed() {
+      this.defKeys = []
+    },
+    // 点击为角色分配权限
+    async allotRights() {
+      const keys = [
+        ...this.$refs.treeRef.getCheckedKeys(),
+        ...this.$refs.treeRef.getHalfCheckedKeys()
+      ];
+      // console.log(keys)
+      const idStr = keys.join(',')
+      const {data: res} = await this.$http.post(`roles/${this.roleId}/rights`, {rids: idStr})
+      if(res.meta.status != 200)  return this.$message.error('分配权限失败！')
+      this.$message.success('分配权限成功！')
+      this.getRolesList()
+      this.setRightDialogVisible = false
     }
   },
   created() {
