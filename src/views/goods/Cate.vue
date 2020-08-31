@@ -231,7 +231,6 @@ export default {
       this.$refs.addCateFormRef.validate(async valid => {
         if(!valid) return
         const {data: res} = await this.$http.put('categories/' + this.editCateForm.cat_id, {cat_name: this.editCateForm.cat_name})
-        // console.log(res)
         if(res.meta.status != 200) this.$message.error('编辑失败！')
         this.$message.success('编辑成功！')
         this.editCateDialogVisible = false
