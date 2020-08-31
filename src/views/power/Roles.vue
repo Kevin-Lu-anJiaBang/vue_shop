@@ -226,6 +226,7 @@ export default {
       }).catch(error => error)
       if( deleteRes == 'cancel' ) return this.$message.info('已取消！')
       const {data: res} = await this.$http.delete(`roles/${role.id}/rights/${rightId}`)
+      // console.log(res)
       if(res.meta.status != 200 ) return this.$message.error('删除失败')
       // this.getRolesList() 调用这个函数会发生页面的完整渲染
       // js 改变形参可以导致实参的改变
