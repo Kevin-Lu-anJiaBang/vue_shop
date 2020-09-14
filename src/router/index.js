@@ -11,7 +11,7 @@ import Params from '../views/goods/Params.vue'
 Vue.use(VueRouter)
 
 const routes = [
-  { path: '/', redirect: "/login" },  // 路由重定向
+  { path: '/', redirect: "/home" },  // 路由重定向
   { path: '/login', component: Login },
   { path: '/home', component: Home, redirect: '/welcome',
     children: [
