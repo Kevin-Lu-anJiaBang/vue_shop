@@ -36,7 +36,7 @@
             <el-table-column type="expand">
               <template slot-scope="scope">
                 <!-- 循环tag标签 -->
-                <el-tag v-for="(item, idx) in scope.row.attr_vals" :key="idx" closable>{{item}}</el-tag>
+                <el-tag v-for="(item, idx) in scope.row.attr_vals" :key="idx" closable @close="handleClose(idx, scope.row)">{{item}}</el-tag>
                 <el-input
                   class="input-new-tag"
                   v-if="scope.row.inputVisible"
@@ -70,6 +70,24 @@
           >添加属性</el-button>
           <!-- 静态参数表格 -->
           <el-table :data="onlyTableData" border stripe>
+            <!-- 展开行 -->
+            <el-table-column type="expand">
+              <template slot-scope="scope">
+                <!-- 循环tag标签 -->
+                <el-tag v-for="(item, idx) in scope.row.attr_vals" :key="idx" closable @close="handleClose(idx, scope.row)">{{item}}</el-tag>
+                <el-input
+                  class="input-new-tag"
+                  v-if="scope.row.inputVisible"
+                  v-model="scope.row.inputValue"
+                  ref="saveTagInput"
+                  size="small"
+                  @keyup.enter.native="handleInputConfirm(scope.row)"
+                  @blur="handleInputConfirm(scope.row)"
+                >
+                </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(scope.row)">+ New Tag</el-button>
+              </template>
+            </el-table-column>
             <!-- 索引列 -->
             <el-table-column type="index"></el-table-column>
             <el-table-column label="属性名称" prop="attr_name"></el-table-column>
@@ -194,7 +212,10 @@ export default {
     },
     handleChange() {
       if(this.selectedCateKeys.length != 3) {
-        return this.selectedCateKeys = []
+        this.selectedCateKeys = []
+        this.manyTableData = []
+        this.onlyTableData = []
+        return 
       }
       this.getParamsData()
     },
@@ -250,6 +271,17 @@ export default {
         return
       }
       // 如果没有return 则需要后续处理
+      row.attr_vals.push(row.inputValue.trim())
+      row.inputValue = ''
+      row.inputVisible = false
+      // 需要发起请求，保存tag标签
+      this.saveAttrVals(row) 
+    },
+
+    async saveAttrVals(row) {
+      const {data: res} = await this.$http.put(`categories/${this.cateId}/attributes/${row.attr_id}`, {attr_name: row.attr_name, attr_sel: row.attr_sel, attr_vals: row.attr_vals.join(' ')})
+      if(res.meta.status !== 200) return this.$message.error('修改失败！')
+      this.$message.success('修改成功')
     },
     showInput(row) {
       row.inputVisible = true
@@ -257,6 +289,11 @@ export default {
       this.$nextTick(_ => {
           this.$refs.saveTagInput.$refs.input.focus();
         })
+    },
+    // 删除对应的参数选项
+    handleClose(i, row) {
+      row.attr_vals.splice(i, 1)
+      this.saveAttrVals(row) 
     },
   },
   created() {
