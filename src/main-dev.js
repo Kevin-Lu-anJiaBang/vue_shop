@@ -10,12 +10,21 @@ import VueQuillEditor from 'vue-quill-editor'  // 富文本编辑器
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
+// 进度条
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 // 配置请求根路径
 axios.defaults.baseURL = 'https://www.liulongbin.top:8888/api/private/v1/'
 // axios.defaults.baseURL = 'http://127.0.0.1:8888/api/private/v1/'
-// axios请求拦截器，请求头必须含有 Authorization
+// axios请求拦截器，请求头必须含有 Authorization ,在 request 拦截器中，展示进度条 Nprogress.start()
 axios.interceptors.request.use(config => {
+  NProgress.start()
   config.headers.Authorization = window.sessionStorage.getItem('token')
+  return config
+})
+// 在 response 拦截器中，隐藏进度条 Nprogress.done()
+axios.interceptors.response.use(config => {
+  NProgress.done()
   return config
 })
 // 将axios挂载在vue实例上
